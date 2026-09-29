@@ -31,3 +31,25 @@ docker compose up --build
 ```bash
 docker compose exec api pytest -q
 ```
+
+## 间隔对账 CLI
+
+与「串车报告」「时间轴」「到站」三页同一口径的可重复、只读对账。源码分三层：
+
+| 层 | 模块 | 职责 |
+| --- | --- | --- |
+| 原材料抽取 | `app/services/recon_extract.py` | 只收集到站行、报告事件、时间轴行；只读直连库或读夹具；不依赖判读层 |
+| 规则判读 | `app/services/recon_rules.py` | 只基于抽取产物判四项；定义退出码常量 |
+| 命令入口 | `app/cli/reconcile.py` | 只选库或夹具并串联；不做进程探活 |
+
+四项判读（严格不等号同 `classify_gap`）：①事件班次对能在到站命中；②串车 gap 严格 `< 串车阈`；③大间隔 gap 严格 `> 大间隔阈`；④时间轴点数 = 该站未取消到站数。任一失败整次非 0。
+
+```bash
+# 直连库（默认 B12 / 市民中心，只读，可重复执行）
+docker compose exec api python -m app.cli.reconcile
+# 夹具
+docker compose exec api python -m app.cli.reconcile --fixture tests/fixtures/bunching_marked_normal.json
+docker compose exec api python -m app.cli.reconcile --fixture tests/fixtures/arrival_missing_field.json
+```
+
+退出码：`0` 通过；`2`（常量甲 `EXIT_RECON_MISMATCH`）四项矛盾，如「实串车却标正常」；`3`（常量乙 `EXIT_MALFORMED`，≠甲）原材料缺字段并点名缺项。种子数据对账退出 0。

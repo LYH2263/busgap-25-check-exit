@@ -3,6 +3,17 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from datetime import datetime
 
+
+def arrival_is_cancelled(arrival: object) -> bool:
+    """未取消到站口径：当前模型没有取消字段，所有到站均视为未取消。
+
+    ORM 行与夹具 dict 通用；将来模型增加 cancelled 列后此处自动生效，
+    报告检测、时间轴与对账 CLI 随之统一过滤。
+    """
+    if isinstance(arrival, dict):
+        return bool(arrival.get("cancelled", False))
+    return bool(getattr(arrival, "cancelled", False))
+
 @dataclass
 class GapEvent:
     stop_name: str
@@ -36,3 +47,23 @@ def detect_bunching(arrivals: list[dict], planned_headway_min: float, bunch_thre
 
 def events_to_dicts(events: list[GapEvent]) -> list[dict]:
     return [asdict(e) for e in events]
+
+
+def arrivals_to_payload(arrivals: list, trip_no_map: dict[int, str]) -> list[dict]:
+    """ORM 到站行 -> detect_bunching 入参（与 /reports/run 同一构造口径）。"""
+    return [{"stop_name": a.stop_name, "trip_no": trip_no_map[a.trip_id],
+             "actual_arrive": a.actual_arrive} for a in arrivals]
+
+
+def build_timeline_marks(arrivals: list, trip_no_map: dict[int, str]) -> list[dict]:
+    """某站到站行 -> 时间轴标记（与 /reports/timeline 同一构造口径）。
+
+    取消的到站由调用方在传入前过滤；本函数只负责排序与相对位置。
+    """
+    arrivals = sorted(arrivals, key=lambda a: a.actual_arrive)
+    if not arrivals:
+        return []
+    t0 = arrivals[0].actual_arrive
+    span = max((arrivals[-1].actual_arrive - t0).total_seconds(), 1)
+    return [{"trip_no": trip_no_map[a.trip_id], "actual_arrive": a.actual_arrive.isoformat(),
+             "pct": round((a.actual_arrive - t0).total_seconds() / span * 100, 2)} for a in arrivals]
