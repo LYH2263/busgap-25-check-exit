@@ -1,0 +1,23 @@
+{
+  "_comment": "取消口径夹具：T02 在市民中心的到站已取消（cancelled=true），时间轴却仍画了 T02。时间轴 4 点 != 未取消到站 3 条，应非 0 且为常量甲、点名 TIMELINE_COUNT；事件只在未取消班次之间成立。",
+  "line": {"id": 1, "code": "B12", "name": "城东环线", "bunch_threshold": 3.0, "large_threshold": 15.0},
+  "arrivals": [
+    {"trip_no": "T01", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:06:00", "cancelled": false},
+    {"trip_no": "T02", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:08:00", "cancelled": true},
+    {"trip_no": "T03", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:16:00", "cancelled": false},
+    {"trip_no": "T04", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:24:00", "cancelled": false}
+  ],
+  "report_events": [
+    {"stop_name": "市民中心", "earlier_trip": "T01", "later_trip": "T03", "gap_min": 10.0, "planned_headway_min": 8.0, "status": "normal"},
+    {"stop_name": "市民中心", "earlier_trip": "T03", "later_trip": "T04", "gap_min": 8.0, "planned_headway_min": 8.0, "status": "normal"}
+  ],
+  "timeline": {
+    "stop_name": "市民中心",
+    "marks": [
+      {"trip_no": "T01", "actual_arrive": "2026-09-17T07:06:00"},
+      {"trip_no": "T02", "actual_arrive": "2026-09-17T07:08:00"},
+      {"trip_no": "T03", "actual_arrive": "2026-09-17T07:16:00"},
+      {"trip_no": "T04", "actual_arrive": "2026-09-17T07:24:00"}
+    ]
+  }
+}

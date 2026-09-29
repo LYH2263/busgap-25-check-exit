@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -30,6 +30,7 @@ class Arrival(Base):
     stop_name: Mapped[str] = mapped_column(String(64))
     stop_seq: Mapped[int] = mapped_column(Integer)
     actual_arrive: Mapped[datetime] = mapped_column(DateTime)
+    cancelled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default=false())
     trip: Mapped["Trip"] = relationship(back_populates="arrivals")
 
 class BunchReport(Base):

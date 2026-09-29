@@ -163,6 +163,9 @@ th { color: var(--bg-dim); font-weight: 600; font-size: 0.78rem; }
 .badge-ok { background: rgba(61,214,140,0.18); color: var(--bg-ok); }
 .badge-warn { background: rgba(255,176,32,0.18); color: var(--bg-amber); }
 .badge-bad { background: rgba(255,77,109,0.18); color: var(--bg-red); }
+.badge-muted { background: rgba(148,163,184,0.18); color: var(--bg-dim); }
+.row-cancelled td { color: var(--bg-dim); text-decoration: line-through; }
+.row-cancelled td:last-child { text-decoration: none; }
 .btn {
   background: var(--bg-cyan); color: #041018; border: none;
   padding: 0.45rem 0.95rem; font-weight: 700; cursor: pointer; font-size: 0.85rem;

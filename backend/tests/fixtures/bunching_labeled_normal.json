@@ -1,0 +1,24 @@
+{
+  "_comment": "矛盾夹具：市民中心 T01→T02 实际到站间隔 2 分钟（严格小于串车阈 3，实串车），报告事件却标为 normal。应非 0，退出码为常量甲 EXIT_CONTRADICTION。时间轴点数本身与未取消到站数一致（4==4），不得误报成点数问题。",
+  "line": {"id": 1, "code": "B12", "name": "城东环线", "bunch_threshold": 3.0, "large_threshold": 15.0},
+  "arrivals": [
+    {"trip_no": "T01", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:06:00"},
+    {"trip_no": "T02", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:08:00"},
+    {"trip_no": "T03", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:16:00"},
+    {"trip_no": "T04", "stop_name": "市民中心", "stop_seq": 1, "actual_arrive": "2026-09-17T07:24:00"}
+  ],
+  "report_events": [
+    {"stop_name": "市民中心", "earlier_trip": "T01", "later_trip": "T02", "gap_min": 2.0, "planned_headway_min": 8.0, "status": "normal"},
+    {"stop_name": "市民中心", "earlier_trip": "T02", "later_trip": "T03", "gap_min": 8.0, "planned_headway_min": 8.0, "status": "normal"},
+    {"stop_name": "市民中心", "earlier_trip": "T03", "later_trip": "T04", "gap_min": 8.0, "planned_headway_min": 8.0, "status": "normal"}
+  ],
+  "timeline": {
+    "stop_name": "市民中心",
+    "marks": [
+      {"trip_no": "T01", "actual_arrive": "2026-09-17T07:06:00"},
+      {"trip_no": "T02", "actual_arrive": "2026-09-17T07:08:00"},
+      {"trip_no": "T03", "actual_arrive": "2026-09-17T07:16:00"},
+      {"trip_no": "T04", "actual_arrive": "2026-09-17T07:24:00"}
+    ]
+  }
+}

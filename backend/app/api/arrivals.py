@@ -12,5 +12,6 @@ def list_arrivals(line_id: int | None = None, db: Session = Depends(get_db)):
     for r in rows:
         if line_id is not None and r.trip.line_id != line_id: continue
         out.append({"id": r.id, "trip_id": r.trip_id, "trip_no": r.trip.trip_no, "line_id": r.trip.line_id,
-                    "stop_name": r.stop_name, "stop_seq": r.stop_seq, "actual_arrive": r.actual_arrive.isoformat()})
+                    "stop_name": r.stop_name, "stop_seq": r.stop_seq, "actual_arrive": r.actual_arrive.isoformat(),
+                    "cancelled": bool(getattr(r, "cancelled", False) or False)})
     return out

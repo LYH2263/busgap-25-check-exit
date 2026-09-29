@@ -22,8 +22,11 @@ def run_detection(line_id: int, stop_name: str | None = None, db: Session = Depe
     trip_ids = [t.id for t in trips]
     trip_no_map = {t.id: t.trip_no for t in trips}
     arrivals = db.scalars(select(Arrival).where(Arrival.trip_id.in_(trip_ids))).all()
+    # 与时间轴、对账 CLI 同一口径：取消的到站不参与任何间隔配对
     payload = [{"stop_name": a.stop_name, "trip_no": trip_no_map[a.trip_id], "actual_arrive": a.actual_arrive}
-               for a in arrivals if stop_name is None or a.stop_name == stop_name]
+               for a in arrivals
+               if not (getattr(a, "cancelled", False) or False)
+               and (stop_name is None or a.stop_name == stop_name)]
     events = detect_bunching(payload, line.planned_headway_min, line.bunch_threshold, line.large_threshold)
     data = events_to_dicts(events)
     report = BunchReport(line_id=line_id, stop_name=stop_name or "*", created_at=datetime.utcnow(),
@@ -41,8 +44,11 @@ def timeline(line_id: int, stop_name: str = "市民中心", db: Session = Depend
     trips = db.scalars(select(Trip).where(Trip.line_id == line_id)).all()
     trip_ids = [t.id for t in trips]
     trip_no_map = {t.id: t.trip_no for t in trips}
-    arrivals = sorted(db.scalars(select(Arrival).where(Arrival.trip_id.in_(trip_ids), Arrival.stop_name == stop_name)).all(),
-                      key=lambda a: a.actual_arrive)
+    # 与 run_detection、对账 CLI 同一口径：只画未取消到站
+    arrivals = sorted(db.scalars(select(Arrival).where(
+        Arrival.trip_id.in_(trip_ids), Arrival.stop_name == stop_name,
+        Arrival.cancelled == False  # noqa: E712
+    )).all(), key=lambda a: a.actual_arrive)
     if not arrivals: return {"stop_name": stop_name, "marks": []}
     t0 = arrivals[0].actual_arrive
     span = max((arrivals[-1].actual_arrive - t0).total_seconds(), 1)
